@@ -362,11 +362,11 @@ def gen_simulated_frb(NFREQ=16, NTIME=250, sim=True, fluence=(0.03,0.3),
     E.add_to_data(delta_t, freq, data, scintillate=scintillate)
 
     if plot_burst:
-        subplot(211)
-        imshow(data.reshape(-1, NTIME), aspect='auto', 
+        plt.subplot(211)
+        plt.imshow(data.reshape(-1, NTIME), aspect='auto',
                interpolation='nearest', vmin=0, vmax=10)
-        subplot(313)
-        plot(data.reshape(-1, ntime).mean(0))
+        plt.subplot(313)
+        plt.plot(data.reshape(-1, 8000).mean(0))
 
     return data, [dm, fluence, width, spec_ind, disp_ind, scat_factor]
 
@@ -541,8 +541,8 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
     while jj < (sim_obj._NRFI + sim_obj._NSIM):
         jj = len(arr_sim_full)
         ii += 1
-        if ii % 500 == 0:
-            print("simulated:%d kept:%d" % (ii, jj))
+        if ii % 50 == 0:
+            print("simulated:%d" % (ii))
 
         # If ii is greater than the number of RFI events in f, 
         # simulate an FRB
@@ -573,7 +573,8 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
                 noise = None
 
             # maybe should feed gen_sim a tel object and 
-            # a set of burst parameters... 
+            # a set of burst parameters...
+            # params: [dm, fluence, width, spec_ind, disp_ind, scat_factor]
             arr_sim, params = gen_simulated_frb(NFREQ=sim_obj._NFREQ, 
                                                 NTIME=sim_obj._NTIME, 
                                                 delta_t=tel_obj._DELTA_T, 
@@ -585,7 +586,7 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
                                                 dm=sim_obj._dm,
                                                 fluence=sim_obj._fluence,
                                                 background_noise=noise, 
-                                                plot_burst=False,
+                                                plot_burst=True,
                                                 sim=True,                                        
                                                 )
 
@@ -632,10 +633,10 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
     arr_sim_full = np.concatenate(arr_sim_full, axis=-1)
     arr_sim_full = arr_sim_full.reshape(-1, sim_obj._NFREQ*sim_obj._NTIME)
 
-    print("\nGenerated %d simulated FRBs with mean SNR: %f" 
-                            % (sim_obj._NSIM, snr.mean()))
+    print("\nGenerated %d simulated FRBs with mean SNR: %f"
+          % (sim_obj._NSIM, snr.mean()))
     print("Used %d RFI triggers" % sim_obj._NRFI)
-    print("Total triggers with SNR>10: %d" % arr_sim_full.shape[0])
+    print("Total triggers with SNR within %d, %d are: %d" % (sim_obj._SNR_MIN, sim_obj._SNR_MAX, arr_sim_full.shape[0]))
 
     if ftype is 'hdf5':
         arr_sim_full = arr_sim_full.reshape(-1, sim_obj._NFREQ, sim_obj._NTIME)
@@ -651,19 +652,13 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
         # save down the training data with labels
         np.save(outfn, full_label_arr)
 
-    if plt==None:
-        mk_plot = False 
+    if plt == None:
+        mk_plot = False
 
-    if sim_obj._mk_plot==True:
-        kk=0
-
+    if sim_obj._mk_plot == True:
         plot_tools.plot_simulated_events(
-                arr_sim_full, y, figname, 
-                sim_obj._NSIDE, sim_obj._NFREQ, 
-                sim_obj._NTIME, cmap='Greys')
+            arr_sim_full, yfull, figname,
+            sim_obj._NSIDE, sim_obj._NFREQ,
+            sim_obj._NTIME, cmap='Greys')
 
-    return arr_sim_full, yfull, params_full_arr, snr 
-
-
-
-
+    return arr_sim_full, yfull, params_full_arr, snr

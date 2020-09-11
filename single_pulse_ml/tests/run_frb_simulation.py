@@ -17,20 +17,21 @@ NAME = "CHIMEPathfinder"
 
 # SIMULATION PARAMETERS 
 NFREQ = 32  # Number of frequencies. Must agree with FP data
-NTIME = 250 # Number of time stamps per trigger
-dm = (-0.05, 0.05)
+NTIME = 250  # Number of time stamps per trigger/frame
+#dm = (-0.05, 0.05)  # how much signal disperse, aprx for distance
+dm = (0,1500)
 fluence = (5, 100)
 width = (2*0.0016, 0.75) # width lognormal dist in seconds
-spec_ind = (-4., 4.)
+spec_ind = (-4., 4.) # range of spectral index
 disp_ind = 2.
 scat_factor = (-4., -1.5)
 NRFI = 100
-SNR_MIN = 8.0
+SNR_MIN = 0.5 #SNR: signal-to-noise
 SNR_MAX = 100.0
 out_file_name = None, 
 mk_plot = True
-NSIDE = 8
-dm_time_array = False
+NSIDE = 10 # for plotting
+dm_time_array = False #??
 outname_tag = 'test'
 outdir = '../data/'
 figname = '../plots/test_out_fig.pdf'
